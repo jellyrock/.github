@@ -52,6 +52,36 @@ Things that belong **per-repo**, not in the default:
   `group_vars/all.yml`, ditto in `docs` for the vendored grammar's
   `.version-info` marker).
 
+## Private repos on GitHub Free
+
+GitHub's auto-merge feature is **not available on private repositories
+under the Free plan** (`github.com/jellyrock` is currently Free). The
+GitHub API silently rejects `allow_auto_merge: true` PATCH calls on
+private repos at this tier without returning an error.
+
+Practical impact today:
+
+| Repo | Visibility | Patch automerge |
+| --- | --- | --- |
+| `jellyrock`, `api-docs`, `docs`, `jellyrock.app`, `shared-ui` | public | Works |
+| `github-runner`, `infra` | private | **Manual merge required** |
+
+Patch PRs Renovate opens against `github-runner` or `infra` will sit
+open with green CI until a human merges them. Renovate's `automerge: true`
+setting is harmless — the platform just doesn't act on it. Nothing
+breaks; the convenience is just unavailable on those two repos.
+
+Three ways to unlock auto-merge on the private repos:
+
+1. **Make the repo public.** Strongest fix; no recurring cost. Audit
+   the repo first for secrets-in-history and topology exposure.
+2. **Upgrade the org to GitHub Team** ($4/user/month). Unlocks
+   auto-merge + other features (Codespaces hours, more Actions minutes,
+   audit log). Billing decision.
+3. **Status quo + manual merge** for those two repos. Zero cost,
+   minor friction. The patch automerge rule remains in the org default;
+   it just no-ops on the private repos.
+
 ## Patch automerge contract
 
 The org default automerges patch-level updates once CI passes. **A
