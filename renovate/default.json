@@ -5,21 +5,46 @@
     ":disableDependencyDashboard",
     ":rebaseStalePrs"
   ],
-  "addLabels": [
-    "dependencies"
-  ],
+  "addLabels": ["dependencies"],
   "rollbackPrs": true,
-  "ignorePaths": [
-    "**/node_modules/**"
-  ],
+  "ignorePaths": ["**/node_modules/**"],
   "timezone": "America/New_York",
+  "separateMinorPatch": true,
   "packageRules": [
     {
-      "description": "Group GitHub Actions updates together",
+      "description": "Group GitHub Actions updates together; pin to SHA digests so version tags can't be silently re-pointed by upstream.",
       "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions",
       "schedule": ["before 6am on monday"],
       "pinDigests": true
+    },
+    {
+      "description": "Pin Docker image digests so a stale :latest can't drift into a deprecated runtime. Applies to Dockerfiles and docker-compose files.",
+      "matchManagers": ["docker-compose", "dockerfile"],
+      "pinDigests": true
+    },
+    {
+      "description": "Group the ESLint/Prettier JS-tooling ecosystem together so a single PR covers a coordinated upgrade. Glob patterns catch ecosystem packages (eslint-plugin-*, eslint-config-*, @eslint/*) without enumerating every plugin per repo.",
+      "matchPackageNames": [
+        "eslint",
+        "prettier",
+        "jshint",
+        "@eslint/*",
+        "eslint-config-*",
+        "eslint-plugin-*"
+      ],
+      "groupName": "linting",
+      "addLabels": ["javascript"]
+    },
+    {
+      "description": "Minor + major updates land on a weekly Monday review batch. Reduces PR noise; patches still fire immediately so security fixes aren't delayed.",
+      "matchUpdateTypes": ["minor", "major"],
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "description": "Patch updates automerge once CI is green. Contract: every repo that extends this default must have PR-triggered CI that exercises the dependency surface (lint+build at minimum). See renovate/README.md.",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
     }
   ]
 }
