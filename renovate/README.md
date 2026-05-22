@@ -82,11 +82,14 @@ Three ways to unlock auto-merge on the private repos:
    minor friction. The patch automerge rule remains in the org default;
    it just no-ops on the private repos.
 
-## Patch automerge contract
+## Patch + digest automerge contract
 
-The org default automerges patch-level updates once CI passes. **A
-repo extending this default must satisfy these conditions** or the
-patch automerge will silently land unreviewed code:
+The org default automerges patch-level **and digest-pin** updates
+once CI passes. (Digest updates refresh the upstream image's content
+hash without changing its tag — same code, freshly-rebuilt base
+layer for CVEs — so they're inherently no-op-risk.) **A repo
+extending this default must satisfy these conditions** or automerge
+will silently land unreviewed code:
 
 1. **PR-triggered CI must exist.** A workflow on `pull_request` (not
    just `workflow_dispatch` or `push`). Renovate's PRs run it; a
@@ -104,7 +107,7 @@ patch automerge will silently land unreviewed code:
      "packageRules": [
        {
          "description": "This repo doesn't have CI strong enough for blind patch automerge",
-         "matchUpdateTypes": ["patch"],
+         "matchUpdateTypes": ["patch", "digest"],
          "automerge": false
        }
      ]

@@ -42,8 +42,8 @@
       "schedule": ["before 6am on monday"]
     },
     {
-      "description": "Patch updates automerge once CI is green. Contract: every repo that extends this default must have PR-triggered CI that exercises the dependency surface (lint+build at minimum). See renovate/README.md.",
-      "matchUpdateTypes": ["patch"],
+      "description": "Patch + digest updates automerge once CI is green. Digest pins refresh the base layer for CVEs without changing the underlying version — same code, just a freshly-rebuilt upstream image — so they're inherently low-risk and don't need human review. Contract: every repo that extends this default must have PR-triggered CI that exercises the dependency surface (lint+build at minimum). See renovate/README.md.",
+      "matchUpdateTypes": ["patch", "digest"],
       "automerge": true
     }
   ]
