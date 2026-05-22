@@ -63,13 +63,13 @@ Practical impact today:
 
 | Repo | Visibility | Patch automerge |
 | --- | --- | --- |
-| `jellyrock`, `api-docs`, `docs`, `jellyrock.app`, `shared-ui` | public | Works |
-| `github-runner`, `infra` | private | **Manual merge required** |
+| `jellyrock`, `api-docs`, `docs`, `jellyrock.app`, `shared-ui`, `github-runner` | public | Works |
+| `infra` | private | **Manual merge required** |
 
-Patch PRs Renovate opens against `github-runner` or `infra` will sit
-open with green CI until a human merges them. Renovate's `automerge: true`
-setting is harmless — the platform just doesn't act on it. Nothing
-breaks; the convenience is just unavailable on those two repos.
+Patch PRs Renovate opens against `infra` will sit open with green CI
+until a human merges them. Renovate's `automerge: true` setting is
+harmless — the platform just doesn't act on it. Nothing breaks; the
+convenience is just unavailable on that one repo.
 
 Three ways to unlock auto-merge on the private repos:
 
