@@ -3,7 +3,8 @@
   "extends": [
     "config:recommended",
     ":disableDependencyDashboard",
-    ":rebaseStalePrs"
+    ":rebaseStalePrs",
+    ":pinAllExceptPeerDependencies"
   ],
   "addLabels": ["dependencies"],
   "rollbackPrs": true,

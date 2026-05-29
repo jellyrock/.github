@@ -32,6 +32,16 @@ The org default carries:
 - **Digest pinning** for GitHub Actions, Dockerfiles, and
   docker-compose files. Tag aliases (`v4`, `:latest`) silently
   re-point upstream; digests don't.
+- **Exact-version pinning** for npm deps via
+  `:pinAllExceptPeerDependencies` — `dependencies` and
+  `devDependencies` are pinned to exact versions (`^0.39.0` →
+  `0.39.0`); `peerDependencies` stay as ranges. The org has no
+  published npm library (`shared-ui` is `private`, consumed at build
+  time from GitHub), so nothing downstream depends on these ranges —
+  exact pins give reproducible installs and clean, reviewable update
+  diffs. Enabling this opens a one-time **"Pin dependencies"** PR per
+  repo; that PR's update type is `pin`, which the automerge rule does
+  **not** match, so a human reviews each one.
 - **JS lint stack grouping** — `eslint`, `prettier`, `jshint`, plus
   glob-matched `@eslint/*`, `eslint-config-*`, `eslint-plugin-*`.
   One coordinated PR instead of one-per-plugin.
