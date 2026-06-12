@@ -38,13 +38,22 @@
       "addLabels": ["javascript"]
     },
     {
-      "description": "Minor + major updates land on a weekly Monday review batch. Reduces PR noise; patches still fire immediately so security fixes aren't delayed.",
-      "matchUpdateTypes": ["minor", "major"],
-      "schedule": ["before 6am on monday"]
+      "description": "Minor updates land on the weekly Monday review batch and soak 5 days before the PR is eligible. Human-reviewed (no automerge). Reduces PR noise; patches still fire so security fixes aren't delayed.",
+      "matchUpdateTypes": ["minor"],
+      "schedule": ["before 6am on monday"],
+      "minimumReleaseAge": "5 days"
     },
     {
-      "description": "Patch + digest updates automerge once CI is green. Digest pins refresh the base layer for CVEs without changing the underlying version — same code, just a freshly-rebuilt upstream image — so they're inherently low-risk and don't need human review. Contract: every repo that extends this default must have PR-triggered CI that exercises the dependency surface (lint+build at minimum). See renovate/README.md.",
+      "description": "Major updates land on the weekly Monday batch, soak 7 days, and NEVER automerge — a major is always human-reviewed regardless of CI. The soak gives the ecosystem time to surface a yanked or hotfixed release before a human picks it up.",
+      "matchUpdateTypes": ["major"],
+      "schedule": ["before 6am on monday"],
+      "minimumReleaseAge": "7 days",
+      "automerge": false
+    },
+    {
+      "description": "Patch + digest updates automerge once CI is green AND the release has soaked 2 days (minimumReleaseAge) — long enough to catch a yanked or hotfixed patch before it lands unattended, short enough not to delay routine fixes. Digest pins refresh the base layer for CVEs without changing the underlying version — same code, just a freshly-rebuilt upstream image — so they're inherently low-risk and don't need human review. Contract: every repo that extends this default must have PR-triggered CI that exercises the dependency surface (lint+build at minimum). See renovate/README.md.",
       "matchUpdateTypes": ["patch", "digest"],
+      "minimumReleaseAge": "2 days",
       "automerge": true
     }
   ]

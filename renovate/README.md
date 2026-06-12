@@ -45,9 +45,11 @@ The org default carries:
 - **JS lint stack grouping** — `eslint`, `prettier`, `jshint`, plus
   glob-matched `@eslint/*`, `eslint-config-*`, `eslint-plugin-*`.
   One coordinated PR instead of one-per-plugin.
-- **Weekly Monday batch** for minor + major. Patches don't wait.
-- **Patch automerge** on green CI. See **Patch automerge contract**
-  below.
+- **Weekly Monday batch** for minor + major, with a soak window
+  (`minimumReleaseAge`) before a PR is eligible: minor 5 days, major
+  7 days. **Majors never automerge** — always human-reviewed.
+- **Patch + digest automerge** on green CI, after a 2-day soak. See
+  **Patch automerge contract** below.
 
 Things that belong **per-repo**, not in the default:
 
@@ -95,9 +97,12 @@ Three ways to unlock auto-merge on the private repos:
 ## Patch + digest automerge contract
 
 The org default automerges patch-level **and digest-pin** updates
-once CI passes. (Digest updates refresh the upstream image's content
-hash without changing its tag — same code, freshly-rebuilt base
-layer for CVEs — so they're inherently no-op-risk.) **A repo
+once CI passes **and the release has soaked for 2 days**
+(`minimumReleaseAge`) — long enough for the ecosystem to surface a
+yanked or hotfixed patch before it lands unattended, short enough not
+to delay routine fixes. (Digest updates refresh the upstream image's
+content hash without changing its tag — same code, freshly-rebuilt
+base layer for CVEs — so they're inherently no-op-risk.) **A repo
 extending this default must satisfy these conditions** or automerge
 will silently land unreviewed code:
 
