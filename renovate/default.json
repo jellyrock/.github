@@ -12,6 +12,11 @@
   "timezone": "America/New_York",
   "separateMinorPatch": true,
   "internalChecksFilter": "none",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": ["before 4am on the first day of the month"]
+  },
   "packageRules": [
     {
       "description": "Group GitHub Actions updates together; pin to SHA digests so version tags can't be silently re-pointed by upstream.",

@@ -58,6 +58,16 @@ The org default carries:
   **minor**. **Majors never automerge** — always human-reviewed (see the
   **Major-bump SOP** below). Minor automerge raises the CI bar; see the
   **Automerge contract** below.
+- **`lockFileMaintenance` enabled** (automerge, monthly). This exists
+  *because* of `minimumReleaseAge`: for npm, Renovate passes
+  `--before=<now − soak>` so transitive deps are age-protected too. When
+  the existing lockfile already holds packages newer than that cutoff,
+  npm errors, Renovate falls back to no `--before`, and logs a noisy
+  "npm `--before` could not be enforced …" artifact notice on the PR.
+  Monthly lock-file maintenance regenerates the lockfile from scratch
+  *with* `--before`, keeping the base lockfile clean so that notice
+  doesn't recur on regular dependency PRs. **Don't disable it** without
+  also removing `minimumReleaseAge`, or the notices come back.
 
 Things that belong **per-repo**, not in the default:
 
