@@ -50,14 +50,34 @@ The org default carries:
   hotfixed release before it lands unattended.
 - **PRs are created immediately** (`internalChecksFilter: "none"`), even
   while soaking — so every update is visible and a human can manually
-  merge early (e.g. a hotfix). The soak only gates **automerge**: a
-  pending `renovate/stability-days` check holds the auto-merge until the
-  window passes, but it isn't a required branch-protection check, so
-  manual merge still works.
+  merge early (e.g. a hotfix). The soak only gates **automerge**.
+- **`platformAutomerge: false`** — load-bearing for the soak. Renovate's
+  soak is a non-required `renovate/stability-days` status check. With
+  GitHub's *platform* automerge (`platformAutomerge: true`, the Renovate
+  default), GitHub merges as soon as the *required* checks pass and
+  ignores that non-required check — so the soak gets **bypassed** (this
+  is how a `minimumReleaseAge` PR can merge minutes after CI, not after
+  the window). Setting `platformAutomerge: false` makes Renovate do its
+  own merge, which *does* honour `minimumReleaseAge`. Keeping
+  `stability-days` non-required is deliberate: it lets a human still
+  merge a hotfix early, while Renovate's own automerge waits out the
+  soak. **Do not set this back to `true`** unless you also make
+  `renovate/stability-days` a required status check (which would also
+  block manual early-merge).
 - **Automerge** on green CI after soak for **patch + digest** and
   **minor**. **Majors never automerge** — always human-reviewed (see the
   **Major-bump SOP** below). Minor automerge raises the CI bar; see the
   **Automerge contract** below.
+- **`lockFileMaintenance` enabled** (automerge, monthly). This exists
+  *because* of `minimumReleaseAge`: for npm, Renovate passes
+  `--before=<now − soak>` so transitive deps are age-protected too. When
+  the existing lockfile already holds packages newer than that cutoff,
+  npm errors, Renovate falls back to no `--before`, and logs a noisy
+  "npm `--before` could not be enforced …" artifact notice on the PR.
+  Monthly lock-file maintenance regenerates the lockfile from scratch
+  *with* `--before`, keeping the base lockfile clean so that notice
+  doesn't recur on regular dependency PRs. **Don't disable it** without
+  also removing `minimumReleaseAge`, or the notices come back.
 
 Things that belong **per-repo**, not in the default:
 
