@@ -45,9 +45,19 @@ The org default carries:
 - **JS lint stack grouping** — `eslint`, `prettier`, `jshint`, plus
   glob-matched `@eslint/*`, `eslint-config-*`, `eslint-plugin-*`.
   One coordinated PR instead of one-per-plugin.
-- **Weekly Monday batch** for minor + major. Patches don't wait.
-- **Patch automerge** on green CI. See **Patch automerge contract**
-  below.
+- **Soak windows** (`minimumReleaseAge`) before automerge: patch/digest
+  2 days, minor 5 days, major 7 days. The soak catches a yanked or
+  hotfixed release before it lands unattended.
+- **PRs are created immediately** (`internalChecksFilter: "none"`), even
+  while soaking — so every update is visible and a human can manually
+  merge early (e.g. a hotfix). The soak only gates **automerge**: a
+  pending `renovate/stability-days` check holds the auto-merge until the
+  window passes, but it isn't a required branch-protection check, so
+  manual merge still works.
+- **Automerge** on green CI after soak for **patch + digest** and
+  **minor**. **Majors never automerge** — always human-reviewed (see the
+  **Major-bump SOP** below). Minor automerge raises the CI bar; see the
+  **Automerge contract** below.
 
 Things that belong **per-repo**, not in the default:
 
@@ -92,37 +102,69 @@ Three ways to unlock auto-merge on the private repos:
    minor friction. The patch automerge rule remains in the org default;
    it just no-ops on the private repos.
 
-## Patch + digest automerge contract
+## Automerge contract (patch + digest + minor)
 
-The org default automerges patch-level **and digest-pin** updates
-once CI passes. (Digest updates refresh the upstream image's content
-hash without changing its tag — same code, freshly-rebuilt base
-layer for CVEs — so they're inherently no-op-risk.) **A repo
-extending this default must satisfy these conditions** or automerge
-will silently land unreviewed code:
+The org default automerges **patch**, **digest-pin**, and **minor**
+updates once CI passes **and** the release has soaked
+(`minimumReleaseAge`: patch/digest 2 days, minor 5 days) — long enough
+for the ecosystem to surface a yanked or hotfixed release before it
+lands unattended, short enough not to delay routine fixes. (Digest
+updates refresh the upstream image's content hash without changing its
+tag — same code, freshly-rebuilt base layer for CVEs — so they're
+inherently no-op-risk.) **A repo extending this default must satisfy
+these conditions** or automerge will silently land unreviewed code:
 
 1. **PR-triggered CI must exist.** A workflow on `pull_request` (not
    just `workflow_dispatch` or `push`). Renovate's PRs run it; a
    missing workflow means no gate — Renovate would merge with no
    signal. Every existing jellyrock repo satisfies this today.
-2. **CI must exercise the dependency surface.** "Build + lint" is
-   the baseline. "Build + lint + unit tests" is better. The
-   stronger the CI, the higher the confidence in patches. The
-   contract is intentionally fuzzy — repos with high test coverage
-   inherit higher safety than repos with just a build check.
-3. **If a repo can't meet (1) or (2), override per-repo:**
+2. **CI must exercise the dependency surface.** "Build + lint" is the
+   floor for patch/digest. **Minor automerge raises the bar:** a
+   breaking minor can pass a build but fail at runtime, so a repo that
+   automerges minors should have CI that exercises runtime behavior
+   (unit/integration/smoke tests), not just build+lint. The stronger
+   the CI, the higher the confidence.
+3. **If a repo can't meet the bar, override per-repo.** Disable minor
+   automerge (keep patch) when CI is build+lint only:
    ```jsonc
    {
      "extends": ["github>jellyrock/.github//renovate/default"],
      "packageRules": [
        {
-         "description": "This repo doesn't have CI strong enough for blind patch automerge",
-         "matchUpdateTypes": ["patch", "digest"],
+         "description": "CI is build+lint only — minors need human review",
+         "matchUpdateTypes": ["minor"],
          "automerge": false
        }
      ]
    }
    ```
+   Or disable all automerge (patch + minor) for a repo with no real CI:
+   ```jsonc
+   {
+     "matchUpdateTypes": ["patch", "digest", "minor"],
+     "automerge": false
+   }
+   ```
+
+## Major-bump SOP
+
+Majors never automerge. When a major PR appears, before merging:
+
+1. **Read the upstream changelog / migration guide** for the version
+   range (the PR body links the release notes).
+2. **Pull the branch and run the repo's full gate locally** — build +
+   lint + the complete test suite (on JellyRock that includes the
+   on-device BS unit tests and the RTA functional pass, which CI's
+   PR-triggered run may not cover end-to-end).
+3. **Grep for breaking-API usage** the changelog flags; migrate code in
+   the same PR.
+4. **For runtime deps bundled into the app** (e.g. the Roku BS libs),
+   verify on a real device, not just a green build.
+5. Merge only when the gate is green and any required migration is in
+   the PR.
+
+Repos may wrap this in a local script or skill so the steps run the same
+way every time, rather than doing the checklist by hand.
 
 ## Adding a new repo
 
