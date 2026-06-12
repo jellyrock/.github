@@ -11,6 +11,7 @@
   "ignorePaths": ["**/node_modules/**"],
   "timezone": "America/New_York",
   "separateMinorPatch": true,
+  "internalChecksFilter": "none",
   "packageRules": [
     {
       "description": "Group GitHub Actions updates together; pin to SHA digests so version tags can't be silently re-pointed by upstream.",
@@ -38,15 +39,14 @@
       "addLabels": ["javascript"]
     },
     {
-      "description": "Minor updates land on the weekly Monday review batch and soak 5 days before the PR is eligible. Human-reviewed (no automerge). Reduces PR noise; patches still fire so security fixes aren't delayed.",
+      "description": "Minor updates automerge once CI is green AND the release has soaked 5 days. The PR is created immediately (internalChecksFilter:none) so it's visible and a human can manually merge early if needed (e.g. a hotfix); the renovate/stability-days pending check holds AUTOMERGE until the soak passes. Minor automerge raises the CI bar — the repo's PR-triggered CI must exercise runtime behavior, not just build+lint (a breaking minor can pass a build but fail at runtime). A repo whose CI can't meet that should override this rule to automerge:false. See renovate/README.md.",
       "matchUpdateTypes": ["minor"],
-      "schedule": ["before 6am on monday"],
-      "minimumReleaseAge": "5 days"
+      "minimumReleaseAge": "5 days",
+      "automerge": true
     },
     {
-      "description": "Major updates land on the weekly Monday batch, soak 7 days, and NEVER automerge — a major is always human-reviewed regardless of CI. The soak gives the ecosystem time to surface a yanked or hotfixed release before a human picks it up.",
+      "description": "Major updates soak 7 days and NEVER automerge — a major is always human-reviewed regardless of CI. The PR is created immediately (internalChecksFilter:none) so it's visible during the soak; the soak gives the ecosystem time to surface a yanked or hotfixed release before a human picks it up. Follow the major-bump SOP (renovate/README.md) before merging.",
       "matchUpdateTypes": ["major"],
-      "schedule": ["before 6am on monday"],
       "minimumReleaseAge": "7 days",
       "automerge": false
     },
