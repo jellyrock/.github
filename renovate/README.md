@@ -25,8 +25,23 @@ jellyrock/<each-repo>/renovate.json
 
 The org default carries:
 
-- **Sane base preset** — `config:recommended` + dashboard disabled +
-  stale-PR rebasing.
+- **Sane base preset** — `config:recommended` + dashboard disabled.
+- **`rebaseWhen: "conflicted"`** — Renovate rebases a PR branch only when
+  it actually conflicts with the base, **not** every time `main` moves.
+  With branch protection set to `strict: false` (branches need not be
+  up-to-date to merge) there's no protection reason to keep every branch
+  current, and `behind-base-branch` rebasing (the old `:rebaseStalePrs`)
+  caused a "rebase storm": each merge force-rebased every open Renovate
+  branch, re-triggering full CI on each and **orphaning any manual commit
+  pushed onto those branches** (e.g. a hand-applied major-bump migration).
+  Tradeoff: an automerge PR can land tested against slightly-stale `main`
+  (Renovate flags this as not-recommended-with-automerge), but for
+  independent dep bumps that risk is low and push-triggered CI on `main`
+  catches it; when you DO want a fresh pre-merge integration test on a
+  specific PR (a major, say), tick Renovate's **rebase checkbox** to force
+  a one-off rebase + CI before merging. Do **not** revert to
+  `behind-base-branch`/`:rebaseStalePrs` unless branch protection becomes
+  `strict: true`.
 - **`separateMinorPatch: true`** — distinct PRs per update type so
   patches can automerge while minors/majors wait for review.
 - **Digest pinning** for GitHub Actions, Dockerfiles, and
@@ -42,9 +57,17 @@ The org default carries:
   diffs. Enabling this opens a one-time **"Pin dependencies"** PR per
   repo; that PR's update type is `pin`, which the automerge rule does
   **not** match, so a human reviews each one.
-- **JS lint stack grouping** — `eslint`, `prettier`, `jshint`, plus
-  glob-matched `@eslint/*`, `eslint-config-*`, `eslint-plugin-*`.
-  One coordinated PR instead of one-per-plugin.
+- **ESLint stack grouping** — `eslint` plus glob-matched `@eslint/*`,
+  `eslint-config-*`, `eslint-plugin-*`. One coordinated PR instead of
+  one-per-plugin, because eslint is version-coupled to its plugins.
+  `prettier` and `jshint` are deliberately **not** in this group — they
+  release independently, and grouping bundles their soak windows so a
+  fresh release of one would gate the other (and the eslint group too).
+- **GitHub Actions grouping, majors excepted** — routine minor/patch
+  Action bumps are grouped into one PR to cut noise; **major** Action
+  bumps get an individual PR each (`groupName: null` override) so each is
+  reviewed on its own, since a major can change runner requirements or
+  default behavior a green build won't surface.
 - **Soak windows** (`minimumReleaseAge`) before automerge: patch/digest
   2 days, minor 5 days, major 7 days. The soak catches a yanked or
   hotfixed release before it lands unattended.

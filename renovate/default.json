@@ -3,9 +3,9 @@
   "extends": [
     "config:recommended",
     ":disableDependencyDashboard",
-    ":rebaseStalePrs",
     ":pinAllExceptPeerDependencies"
   ],
+  "rebaseWhen": "conflicted",
   "addLabels": ["dependencies"],
   "rollbackPrs": true,
   "ignorePaths": ["**/node_modules/**"],
@@ -27,21 +27,30 @@
       "pinDigests": true
     },
     {
+      "description": "Major GitHub Actions bumps get their OWN PR (groupName:null overrides the grouping above) so each is reviewed independently — a major can change runner requirements or default behavior that a green build won't surface, and bundling several into one PR muddies that review. Minor/patch stay grouped to cut routine noise. Schedule + digest-pinning still apply (this rule only overrides grouping).",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["major"],
+      "groupName": null
+    },
+    {
       "description": "Pin Docker image digests so a stale :latest can't drift into a deprecated runtime. Applies to Dockerfiles and docker-compose files.",
       "matchManagers": ["docker-compose", "dockerfile"],
       "pinDigests": true
     },
     {
-      "description": "Group the ESLint/Prettier JS-tooling ecosystem together so a single PR covers a coordinated upgrade. Glob patterns catch ecosystem packages (eslint-plugin-*, eslint-config-*, @eslint/*) without enumerating every plugin per repo.",
+      "description": "Group the ESLint ecosystem together so a single PR covers a coordinated upgrade — eslint is version-coupled to its plugins/configs, so they should move atomically. Glob patterns catch ecosystem packages (eslint-plugin-*, eslint-config-*, @eslint/*) without enumerating every plugin per repo. Prettier and jshint are deliberately NOT grouped here (see next rule): they release independently of eslint, so grouping them would let either gate the other's soak window.",
       "matchPackageNames": [
         "eslint",
-        "prettier",
-        "jshint",
         "@eslint/*",
         "eslint-config-*",
         "eslint-plugin-*"
       ],
       "groupName": "linting",
+      "addLabels": ["javascript"]
+    },
+    {
+      "description": "Prettier and jshint release on their own cadence, independent of the eslint stack. Label them (so they read as JS tooling) but do NOT group them — grouping bundles their soak windows, so a fresh release of one holds back the other (and held back the eslint group too, before this split). Each flows on its own soak.",
+      "matchPackageNames": ["prettier", "jshint"],
       "addLabels": ["javascript"]
     },
     {
