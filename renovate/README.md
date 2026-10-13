@@ -43,7 +43,8 @@ The org default carries:
   `behind-base-branch`/`:rebaseStalePrs` unless branch protection becomes
   `strict: true`.
 - **`separateMinorPatch: true`** — distinct PRs per update type so
-  patches can automerge while minors/majors wait for review.
+  patches and minors each automerge after their own soak window, while
+  majors always wait for review.
 - **Digest pinning** for GitHub Actions, Dockerfiles, and
   docker-compose files. Tag aliases (`v4`, `:latest`) silently
   re-point upstream; digests don't.
