@@ -21,13 +21,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '22'
+          # Renovate 44+ declares node ^24.11.0; on 22 its CLI already fails
+          # (RegExp.escape), so the validator can stop working without notice.
+          node-version: '24'
 
       - name: Validate Renovate preset
         # A malformed default.json would silently break Renovate for the whole
         # org (every repo inherits this preset). Validate it on every PR so the
         # org-wide automerge contract has a real CI gate here too.
         run: npx --yes --package renovate -- renovate-config-validator --strict renovate/default.json
+
+      - name: Lint scripts
+        # shellcheck ships on GitHub's ubuntu runners.
+        run: shellcheck scripts/*.sh
 
       - name: Validate JSON files parse
         run: |
