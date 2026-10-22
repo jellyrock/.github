@@ -26,6 +26,11 @@ jellyrock/<each-repo>/renovate.json
 The org default carries:
 
 - **Sane base preset** — `config:recommended` + dashboard disabled.
+- **Update-type labels** — every Renovate PR carries `dependencies` plus
+  exactly one of `major`, `minor`, `patch`, `digest`, `pin` or `lockfile`,
+  so the PR list filters by risk (`is:open label:major`). Labels only; they
+  change no merge behaviour. `scripts/sync-labels.sh` gives them the same
+  colour and description in every repo (re-run it after adding a repo).
 - **`rebaseWhen: "conflicted"`** — Renovate rebases a PR branch only when
   it actually conflicts with the base, **not** every time `main` moves.
   With branch protection set to `strict: false` (branches need not be
@@ -261,6 +266,22 @@ Edits here cascade to every consuming repo on Renovate's next scan
   Toggle with care; an unintentional automerge of a malicious upstream
   patch would land directly on `main` of any repo with the contract
   satisfied.
+
+## Checking every repo
+
+`scripts/audit-repos.sh` reads every non-archived repo through the GitHub
+API (read-only) and prints one row per repo against the contract above:
+uses the preset, has PR CI, CI can actually fail (no `|| true` on a
+build/test step), `main` is protected and which checks it requires, whether
+`renovate/stability-days` is wrongly required, whether GitHub can automerge
+there, whether a shared-ui pin is tracked, and how many Renovate PRs are
+open. `--markdown` prints a table to paste into an issue.
+
+```bash
+scripts/audit-repos.sh             # aligned table in the terminal
+scripts/audit-repos.sh --markdown  # for an issue or PR
+scripts/sync-labels.sh --dry-run   # what the label sync would change
+```
 
 ## See also
 
