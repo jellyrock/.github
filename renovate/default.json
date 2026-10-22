@@ -70,6 +70,31 @@
       "matchUpdateTypes": ["patch", "digest"],
       "minimumReleaseAge": "2 days",
       "automerge": true
+    },
+    {
+      "description": "Update-type labels: every Renovate PR carries one of major / minor / patch / digest / pin / lockfile next to `dependencies`, so the PR list can be filtered by risk at a glance (e.g. `is:open label:major`). Labels only — these rules change no merge behaviour. Colours and descriptions are set org-wide by scripts/sync-labels.sh.",
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["major"]
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "addLabels": ["minor"]
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "addLabels": ["patch"]
+    },
+    {
+      "matchUpdateTypes": ["digest"],
+      "addLabels": ["digest"]
+    },
+    {
+      "matchUpdateTypes": ["pin", "pinDigest"],
+      "addLabels": ["pin"]
+    },
+    {
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "addLabels": ["lockfile"]
     }
   ]
 }
