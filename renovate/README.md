@@ -275,7 +275,11 @@ uses the preset, has PR CI, CI can actually fail (no `|| true` on a
 build/test step), `main` is protected and which checks it requires, whether
 `renovate/stability-days` is wrongly required, whether GitHub can automerge
 there, whether a shared-ui pin is tracked, and how many Renovate PRs are
-open. `--markdown` prints a table to paste into an issue.
+open. `AT LIMIT` beside that count means the repo has reached
+`prConcurrentLimit` (Renovate's default is 10): Renovate opens no new PRs there
+until some close, and with the dependency dashboard off nothing else shows it.
+Merge or close PRs to make room. `--markdown` prints a table to paste into an
+issue.
 
 ```bash
 scripts/audit-repos.sh             # aligned table in the terminal
