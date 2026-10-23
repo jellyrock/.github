@@ -132,7 +132,7 @@ Practical impact today:
 
 | Repo | Visibility | Patch automerge |
 | --- | --- | --- |
-| `jellyrock`, `api-docs`, `docs`, `jellyrock.app`, `shared-ui`, `github-runner` | public | Works |
+| `jellyrock`, `docs`, `jellyrock.app`, `shared-ui`, `github-runner` | public | Works |
 | `infra` | private | **Manual merge required** |
 
 Patch PRs Renovate opens against `infra` will sit open with green CI
