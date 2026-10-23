@@ -14,7 +14,11 @@
 #   soak-req      renovate/stability-days is required (README: it must not be)
 #   automerge     GitHub can merge on Renovate's behalf (private repos on Free cannot)
 #   ui-pin        a shared-ui release pin in the code is tracked by renovate.json
-#   open-deps     open Renovate PRs
+#   open-deps     open Renovate PRs; AT LIMIT once they reach prConcurrentLimit (the repo's
+#                 renovate.json, else the org preset, else Renovate's default of 10). At the
+#                 limit Renovate opens nothing new, and with the dependency dashboard off
+#                 nothing else says so: docs sat there from June to October 2026 and got no
+#                 GitHub Actions updates.
 set -uo pipefail
 
 org=jellyrock
@@ -24,6 +28,7 @@ markdown=false
 raw() { gh api "repos/$org/$1" -H 'Accept: application/vnd.github.raw' 2>/dev/null; }
 
 header=(repo visibility preset pr-ci ci-can-fail protected required soak-req automerge ui-pin open-deps)
+preset_limit=$(raw .github/contents/renovate/default.json | jq -r '.prConcurrentLimit // 10' 2>/dev/null || echo 10)
 rows=()
 for repo in $(gh repo list "$org" --limit 100 --no-archived --json name --jq '.[].name' | sort); do
   visibility=$(gh api "repos/$org/$repo" --jq '.visibility')
@@ -72,6 +77,11 @@ for repo in $(gh repo list "$org" --limit 100 --no-archived --json name --jq '.[
   fi
 
   open_deps=$(gh pr list -R "$org/$repo" --author app/renovate --state open --json number --jq length 2>/dev/null || echo '?')
+  limit=$(jq -r ".prConcurrentLimit // $preset_limit" <<<"${renovate:-null}" 2>/dev/null || echo "$preset_limit")
+  # 0 means no limit (Renovate docs).
+  if [[ $open_deps =~ ^[0-9]+$ ]] && ((limit > 0 && open_deps >= limit)); then
+    open_deps="$open_deps (AT LIMIT $limit)"
+  fi
 
   rows+=("$repo"$'\t'"$visibility"$'\t'"$preset"$'\t'"$pr_ci"$'\t'"$can_fail"$'\t'"$protected"$'\t'"$required"$'\t'"$soak_req"$'\t'"$automerge"$'\t'"$ui_pin"$'\t'"$open_deps")
 done
