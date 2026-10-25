@@ -31,6 +31,12 @@ jobs:
         # org-wide automerge contract has a real CI gate here too.
         run: npx --yes --package renovate -- renovate-config-validator --strict renovate/default.json
 
+      - name: Validate this repo's Renovate config
+        # With no file argument the validator checks renovate.json as a repo
+        # config, the way Renovate reads it (a file argument is checked as
+        # global config instead).
+        run: npx --yes --package renovate -- renovate-config-validator --strict
+
       - name: Lint scripts
         # shellcheck ships on GitHub's ubuntu runners.
         run: shellcheck scripts/*.sh
