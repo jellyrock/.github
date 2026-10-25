@@ -41,6 +41,14 @@ jobs:
         # shellcheck ships on GitHub's ubuntu runners.
         run: shellcheck scripts/*.sh
 
+      - name: Lint Markdown
+        # The org-wide CONTRIBUTING.md and SECURITY.md live only here, so
+        # jellyrock's markdownlint no longer covers them. .markdownlint.yml
+        # holds the same rules as jellyrock's.
+        uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24.2.0
+        with:
+          globs: '**/*.md'
+
       - name: Validate JSON files parse
         run: |
           fail=0
