@@ -3,6 +3,8 @@
 
 JellyRock is a fast, fluid Jellyfin client for Roku, focused on stability, performance, and a polished UX. Free and open-source, no ads, no tracking. Bring your own Jellyfin server.
 
+Running your own Jellyfin server? The optional [JellyRock Companion plugin](https://github.com/jellyrock/jellyfin-plugin-jellyrock) adds casting to a closed app, remote control on HTTPS servers and faster cleanup when you press Home.
+
 **[Get it on the Roku Channel Store](https://channelstore.roku.com/details/232f9e82db11ce628e3fe7e01382a330:a85d6e9e520567806e8dae1c0cabadd5/jellyrock)** · [Website](https://jellyrock.app) · [User docs](https://docs.jellyrock.app) · [Dev docs](https://dev.jellyrock.app) · [Chat on Matrix](https://matrix.to/#/#jellyrock-app:matrix.org)
 
 ## Get help
