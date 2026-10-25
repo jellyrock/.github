@@ -132,7 +132,7 @@ Practical impact today:
 
 | Repo | Visibility | Patch automerge |
 | --- | --- | --- |
-| `jellyrock`, `docs`, `jellyrock.app`, `shared-ui`, `github-runner`, `.github` | public | Works |
+| `jellyrock`, `docs`, `jellyrock.app`, `shared-ui`, `github-runner`, `.github`, `jellyfin-plugin-jellyrock` | public | Works |
 | `infra` | private | **Manual merge required** |
 
 Patch PRs Renovate opens against `infra` will sit open with green CI
@@ -251,6 +251,11 @@ repo's `renovate.json`. Examples already in use:
 - [`jellyrock/docs`](https://github.com/jellyrock/docs/blob/main/renovate.json)
   — `customManagers` regex that tracks the vendored BrightScript
   TextMate grammar's upstream release tag.
+- [`jellyrock/jellyfin-plugin-jellyrock`](https://github.com/jellyrock/jellyfin-plugin-jellyrock/blob/main/renovate.json)
+  — NuGet `rangeStrategy: bump` (in NuGet a plain version means "this
+  or newer", so this preset's exact pin would rewrite it to the newest
+  release), the Jellyfin API-floor packages held, and .NET SDK majors
+  off.
 
 Don't paste a rule into the org default unless **every** jellyrock
 repo benefits. A rule that only matches packages in one repo just
