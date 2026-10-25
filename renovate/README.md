@@ -175,6 +175,7 @@ these conditions** or automerge will silently land unreviewed code:
    the CI, the higher the confidence.
 3. **If a repo can't meet the bar, override per-repo.** Disable minor
    automerge (keep patch) when CI is build+lint only:
+
    ```jsonc
    {
      "extends": ["github>jellyrock/.github//renovate/default"],
@@ -187,7 +188,9 @@ these conditions** or automerge will silently land unreviewed code:
      ]
    }
    ```
+
    Or disable all automerge (patch + minor) for a repo with no real CI:
+
    ```jsonc
    {
      "matchUpdateTypes": ["patch", "digest", "minor"],
@@ -220,12 +223,14 @@ way every time, rather than doing the checklist by hand.
 1. Confirm the repo has PR-triggered CI that exercises the
    dependency surface (see the contract above).
 2. Add a one-line `renovate.json` at the repo root:
+
    ```json
    {
      "$schema": "https://docs.renovatebot.com/renovate-schema.json",
      "extends": ["github>jellyrock/.github//renovate/default"]
    }
    ```
+
 3. Install (or invite) the Renovate GitHub App on the repo. Renovate
    picks the config up on its next scan.
 4. The first run usually opens 5-20 PRs as it pin-digests every
