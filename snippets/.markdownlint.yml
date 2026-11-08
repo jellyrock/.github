@@ -1,0 +1,5 @@
+# The snippet starts at "## Support JellyRock" on purpose: it is pasted under
+# other pages' top headings, so it has no H1 of its own.
+---
+extends: ../.markdownlint.yml
+MD041: false

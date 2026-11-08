@@ -41,6 +41,11 @@ jobs:
         # shellcheck ships on GitHub's ubuntu runners.
         run: shellcheck scripts/*.sh
 
+      - name: Check the profile README's support section matches the snippet
+        # snippets/support-full.md is the source; the short snippets/support.md
+        # feeds jellyrock's release notes. Fix with scripts/sync-support.sh.
+        run: scripts/sync-support.sh --check
+
       - name: Lint Markdown
         # The org-wide CONTRIBUTING.md and SECURITY.md live only here, so
         # jellyrock's markdownlint no longer covers them. .markdownlint.yml
