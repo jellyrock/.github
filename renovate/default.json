@@ -5,6 +5,7 @@
     ":disableDependencyDashboard",
     ":pinAllExceptPeerDependencies"
   ],
+  "ignorePresets": [":semanticPrefixFixDepsChoreOthers"],
   "rebaseWhen": "conflicted",
   "addLabels": ["dependencies"],
   "rollbackPrs": true,
@@ -95,6 +96,11 @@
     {
       "matchUpdateTypes": ["lockFileMaintenance"],
       "addLabels": ["lockfile"]
+    },
+    {
+      "description": "Every dependency PR is chore(deps), never fix(deps). config:recommended pulls in :semanticPrefixFixDepsChoreOthers, which titles updates to runtime dependencies as fix, so a version bump reads as a bug fix in the commit log and in a changelog built from titles; ignorePresets above drops it. This last rule sets chore as well, so a preset that brings the split back cannot win.",
+      "matchPackageNames": ["*"],
+      "semanticCommitType": "chore"
     }
   ]
 }
